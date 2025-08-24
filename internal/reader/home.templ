@@ -1,0 +1,24 @@
+package reader
+
+import (
+	"reader/internal/ui"
+	"reader/internal/users"
+)
+
+templ homePageTempl(user *users.UserWithPermissions, texts []Text) {
+	@ui.Base(users.Navigation(user)) {
+		<div class="flex items-center justify-between gap-4 pb-4 h-16">
+			<h1 class="font-title text-xl">Reader</h1>
+			<a href="/texts/add" class="btn btn-success">Add</a>
+		</div>
+		<div id="text-list">
+			for _, text := range texts {
+				<div class="card bg-base-100">
+					<div class="card-body">
+						<h2 class="card-title">{ text.Title }</h2>
+					</div>
+				</div>
+			}
+		</div>
+	}
+}

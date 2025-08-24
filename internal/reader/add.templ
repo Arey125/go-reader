@@ -1,0 +1,37 @@
+package reader
+
+import (
+	"reader/internal/ui"
+	"reader/internal/users"
+)
+
+templ addPageTempl(user *users.UserWithPermissions) {
+	@ui.Base(users.Navigation(user)) {
+		<div class="flex items-center justify-between gap-4 pb-4 h-16">
+			<h1 class="font-title text-xl">Add text</h1>
+		</div>
+		<div class="card bg-base-100">
+			<form method="POST" autocomplete="off" class="card-body">
+				<label class="label" for="title">Title</label>
+				<input
+					id="title"
+					name="title"
+					class="input"
+					type="text"
+					placeholder="Title"
+				/>
+				<label class="label" for="content">Content</label>
+				<textarea
+					id="content"
+					name="content"
+					class="textarea w-full"
+					type="text"
+					placeholder="Content"
+				></textarea>
+				<div class="justify-start mt-4">
+					<button class="btn btn-success">Add</button>
+				</div>
+			</form>
+		</div>
+	}
+}
