@@ -1,6 +1,4 @@
-# Go reader
-
-reader for go projects with sqlite db, templ, daisy ui and htmx
+# Go Reader
 
 ## Installation
 1. Get [tailwind-cli](https://tailwindcss.com/blog/standalone-cli)
