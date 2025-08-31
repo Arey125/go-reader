@@ -46,3 +46,22 @@ func (m *Model) All() ([]Text, error) {
 		return rows.Scan(&t.Id, &t.Title, &t.Content, &t.UserId)
 	})
 }
+
+func (m *Model) Get(id int) (*Text, error) {
+	t := Text{}
+
+	err := sq.Select("id", "title", "content", "user_id").
+		From("texts").
+		Where(sq.Eq{"id": id}).
+		RunWith(m.db).
+		QueryRow().
+		Scan(&t.Id, &t.Title, &t.Content, &t.UserId)
+
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	return &t, nil
+}

@@ -3,6 +3,7 @@ package reader
 import (
 	"reader/internal/ui"
 	"reader/internal/users"
+	"fmt"
 )
 
 templ homePageTempl(user *users.UserWithPermissions, texts []Text) {
@@ -13,9 +14,9 @@ templ homePageTempl(user *users.UserWithPermissions, texts []Text) {
 		</div>
 		<div id="text-list">
 			for _, text := range texts {
-				<div class="card bg-base-100">
+				<div class="card bg-base-100 mb-4">
 					<div class="card-body">
-						<h2 class="card-title">{ text.Title }</h2>
+						<a href={fmt.Sprintf("/texts/%d", text.Id)} class="card-title">{ text.Title }</a>
 					</div>
 				</div>
 			}

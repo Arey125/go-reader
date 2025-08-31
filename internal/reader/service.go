@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"reader/internal/server"
 	"reader/internal/users"
+	"strconv"
 )
 
 type Service struct {
@@ -18,6 +19,7 @@ func (s *Service) Register(mux *http.ServeMux) {
 	mux.HandleFunc("GET /{$}", s.homePage)
 	mux.HandleFunc("GET /texts/add", s.addPage)
 	mux.HandleFunc("POST /texts/add", s.addPost)
+	mux.HandleFunc("GET /texts/{id}", s.readPage)
 }
 
 func (s *Service) homePage(w http.ResponseWriter, r *http.Request) {
@@ -39,7 +41,7 @@ func (s *Service) addPost(w http.ResponseWriter, r *http.Request) {
 	title := r.FormValue("title")
 	content := r.FormValue("content")
 	if user == nil || len(title) < 3 || len(content) < 3 {
-		http.Error(w, "Bad request", http.StatusBadRequest)
+		server.HttpError(w, http.StatusBadRequest)
 		return;
 	}
 
@@ -54,4 +56,27 @@ func (s *Service) addPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+func (s *Service) readPage(w http.ResponseWriter, r *http.Request) {
+	user := users.GetUser(r)
+	textIdStr := r.PathValue("id")
+
+	textId, err := strconv.Atoi(textIdStr)
+	if err != nil {
+		server.HttpError(w, http.StatusBadRequest)
+		return
+	}
+
+	textPtr, err := s.model.Get(textId)
+	if err != nil {
+		server.ServerError(w, err)
+	}
+	if textPtr == nil {
+		server.HttpError(w, http.StatusNotFound)
+		return
+	}
+	text := *textPtr
+
+	readPageTempl(user, text).Render(r.Context(), w)
 }
