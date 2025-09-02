@@ -7,7 +7,7 @@ import (
 
 templ readPageTempl(user *users.UserWithPermissions, text Text) {
 	@ui.Base(users.Navigation(user)) {
-		<div class="bg-base-100 whitespace-pre-line rounded-lg p-6 max-w-200 mx-auto mt-2">
+		<div class="bg-base-100 whitespace-pre-line rounded-lg p-6 max-w-200 mx-auto mt-2 mb-10">
 			<div class="prose !max-w-none">
 				<h2>{ text.Title }</h2>
 				<p>
