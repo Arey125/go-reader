@@ -17,6 +17,7 @@ type config struct {
 	Secure   bool
 	CertFile string
 	KeyFile  string
+	NlpUrl   string
 }
 
 func getString(name string) string {
@@ -66,6 +67,8 @@ func Get(envFile string) config {
 		keyFile = getString("KEY_FILE")
 	}
 
+	nlpUrl := getString("NLP_ENDPOINT_URL")
+
 	return config{
 		Port: port,
 		Db:   db,
@@ -78,5 +81,6 @@ func Get(envFile string) config {
 		Secure:   secure,
 		CertFile: certFile,
 		KeyFile:  keyFile,
+		NlpUrl:   nlpUrl,
 	}
 }

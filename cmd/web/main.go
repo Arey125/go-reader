@@ -10,6 +10,8 @@ import (
 	database "reader/internal/db"
 	"reader/internal/reader"
 	"reader/internal/users"
+	"reader/internal/nlp"
+
 	"reader/static"
 
 	"github.com/alexedwards/scs/sqlite3store"
@@ -37,8 +39,10 @@ func main() {
 	usersService.Register(mux)
 	injectUserMiddleware := users.NewInjectUserMiddleware(&usersModel, sessionManager)
 
+	nlpClient := nlp.NewClient(cfg.NlpUrl)
+
 	readerModel := reader.NewModel(db)
-	readerService := reader.NewService(&readerModel)
+	readerService := reader.NewService(&readerModel, &nlpClient)
 	readerService.Register(mux)
 
 	server := http.Server{

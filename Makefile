@@ -2,7 +2,7 @@ include .env
 BIN = reader
 NOW = $(shell date '+%Y_%m_%d_%H_%M_%S')
 
-.PHONY: all tailwind run sqlite migrate migrate-down backup
+.PHONY: all tailwind run sqlite migrate migrate-down backup nlp nlp-debug
 
 all: tailwind templ
 	@go build -o bin/$(BIN) cmd/web/*
@@ -27,3 +27,9 @@ migrate-down:
 
 backup:
 	sqlite3 $(DB) ".backup $(DB_BACKUP_DIR)/$(NOW).db"
+
+nlp:
+	cd nlp && uv run fastapi run
+
+nlp-debug:
+	cd nlp && uv run fastapi dev

@@ -1,7 +1,9 @@
 package reader
 
 import (
+	"fmt"
 	"net/http"
+	"reader/internal/nlp"
 	"reader/internal/server"
 	"reader/internal/users"
 	"strconv"
@@ -9,10 +11,14 @@ import (
 
 type Service struct {
 	model *Model
+	nlpClient *nlp.Client
 }
 
-func NewService(model *Model) Service {
-	return Service{model}
+func NewService(model *Model, nlpClient *nlp.Client) Service {
+	return Service{
+		model: model,
+		nlpClient: nlpClient,
+	}
 }
 
 func (s *Service) Register(mux *http.ServeMux) {
