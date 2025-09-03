@@ -5,13 +5,19 @@ import (
 	"reader/internal/users"
 )
 
-templ readPageTempl(user *users.UserWithPermissions, text Text) {
+templ readPageTempl(user *users.UserWithPermissions, text Text, segments []Segment) {
 	@ui.Base(users.Navigation(user)) {
 		<div class="bg-base-100 whitespace-pre-line rounded-lg p-6 max-w-200 mx-auto mt-2 mb-10">
 			<div class="prose !max-w-none">
 				<h2>{ text.Title }</h2>
 				<p>
-					{ text.Content }
+					for _, segment := range segments {
+						if segment.Info == nil {
+							{ segment.Text }
+						} else {
+							<span class="badge badge-soft badge-accent">{ segment.Text }</span>
+                        }
+					}
 				</p>
 			</div>
 		</div>

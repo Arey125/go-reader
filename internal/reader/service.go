@@ -1,7 +1,6 @@
 package reader
 
 import (
-	"fmt"
 	"net/http"
 	"reader/internal/nlp"
 	"reader/internal/server"
@@ -84,5 +83,10 @@ func (s *Service) readPage(w http.ResponseWriter, r *http.Request) {
 	}
 	text := *textPtr
 
-	readPageTempl(user, text).Render(r.Context(), w)
+	segments, err := s.splitIntoSegments(text.Content)
+	if err != nil {
+		server.ServerError(w, err)
+	}
+
+	readPageTempl(user, text, segments).Render(r.Context(), w)
 }
