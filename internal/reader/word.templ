@@ -1,8 +1,9 @@
 package reader
 
 import "fmt"
+import "reader/internal/dictionary"
 
-templ wordTempl(segment Segment) {
+templ wordTempl(segment Segment, entry dictionary.DictionaryEntry) {
 	{{
         popoverId := fmt.Sprintf("%s-meaning", segment.Info.Lemma)
         anchorId := "--" + popoverId
@@ -22,5 +23,8 @@ templ wordTempl(segment Segment) {
 		style={ map[string]string{"position-anchor": anchorId} }
 	>
 		{ segment.Info.Lemma }
+        <div>
+            {entry.Meanings[0].Definitions[0].Definition}
+        </div>
 	</div>
 }

@@ -8,9 +8,10 @@ import (
 
 	"reader/internal/config"
 	database "reader/internal/db"
+	"reader/internal/dictionary"
+	"reader/internal/nlp"
 	"reader/internal/reader"
 	"reader/internal/users"
-	"reader/internal/nlp"
 
 	"reader/static"
 
@@ -39,9 +40,10 @@ func main() {
 	injectUserMiddleware := users.NewInjectUserMiddleware(&usersModel, sessionManager)
 
 	nlpClient := nlp.NewClient(cfg.NlpUrl)
+	dictionaryClient := dictionary.NewClient()
 
 	readerModel := reader.NewModel(db)
-	readerService := reader.NewService(&readerModel, &nlpClient)
+	readerService := reader.NewService(&readerModel, &nlpClient, &dictionaryClient)
 	readerService.Register(mux)
 
 	server := http.Server{
