@@ -26,3 +26,9 @@
 .swal2-actions {
   gap: 8px;
 }
+
+.word-popover {
+    top: calc(anchor(bottom) + 10px);
+    justify-self: anchor-center;
+    background-color: oklch(0.29 0.02 252.41);
+}

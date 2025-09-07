@@ -7,7 +7,7 @@ import (
 
 templ readPageTempl(user *users.UserWithPermissions, text Text, segments []Segment) {
 	@ui.Base(users.Navigation(user)) {
-		<div class="bg-base-100 whitespace-pre-line rounded-lg p-6 max-w-200 mx-auto mt-2 mb-10">
+		<div class="bg-base-100 whitespace-pre-line rounded-box p-6 max-w-200 mx-auto mt-2 mb-10">
 			<div class="prose !max-w-none">
 				<h2>{ text.Title }</h2>
 				<p>
@@ -15,8 +15,18 @@ templ readPageTempl(user *users.UserWithPermissions, text Text, segments []Segme
 						if segment.Info == nil {
 							{ segment.Text }
 						} else {
-							<span class="badge badge-soft badge-accent">{ segment.Text }</span>
-                        }
+							<button
+								class="badge badge-soft badge-accent"
+								hx-get="/word"
+								hx-swap="outerHTML"
+                                hx-include="this"
+							>
+								{ segment.Text }
+								<input type="hidden" name="text" value={ segment.Text }/>
+								<input type="hidden" name="lemma" value={ segment.Info.Lemma }/>
+								<input type="hidden" name="pos" value={ segment.Info.Pos }/>
+							</button>
+						}
 					}
 				</p>
 			</div>

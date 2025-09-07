@@ -24,7 +24,6 @@ func main() {
 
 	cfg := config.Get(*envFile)
 	db := database.Connect(cfg.Db)
-	_ = db
 
 	sessionManager := scs.New()
 	sessionManager.Store = sqlite3store.New(db)

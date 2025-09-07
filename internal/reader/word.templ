@@ -1,0 +1,26 @@
+package reader
+
+import "fmt"
+
+templ wordTempl(segment Segment) {
+	{{
+        popoverId := fmt.Sprintf("%s-meaning", segment.Info.Lemma)
+        anchorId := "--" + popoverId
+	}}
+	<button
+		class="badge badge-soft badge-info"
+		popovertarget={ popoverId }
+		style={ map[string]string{"anchor-name": anchorId} }
+	>
+		{ segment.Text }
+	</button>
+	<div
+		popover
+		id={ popoverId }
+		x-init="$el.showPopover()"
+		class="bg-base-100 rounded-box word-popover px-4 py-2 shadow-md"
+		style={ map[string]string{"position-anchor": anchorId} }
+	>
+		{ segment.Info.Lemma }
+	</div>
+}

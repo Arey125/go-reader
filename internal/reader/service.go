@@ -25,6 +25,8 @@ func (s *Service) Register(mux *http.ServeMux) {
 	mux.HandleFunc("GET /texts/add", s.addPage)
 	mux.HandleFunc("POST /texts/add", s.addPost)
 	mux.HandleFunc("GET /texts/{id}", s.readPage)
+
+	mux.HandleFunc("GET /word", s.wordGet)
 }
 
 func (s *Service) homePage(w http.ResponseWriter, r *http.Request) {
@@ -89,4 +91,15 @@ func (s *Service) readPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	readPageTempl(user, text, segments).Render(r.Context(), w)
+}
+
+func (s *Service) wordGet(w http.ResponseWriter, r *http.Request) {
+	segment := Segment{}
+	segment.Text = r.FormValue("text")
+	segment.Info = &WordInfo{
+		Lemma: r.FormValue("lemma"),
+		Pos: r.FormValue("pos"),
+	}
+
+	wordTempl(segment).Render(r.Context(), w)
 }
