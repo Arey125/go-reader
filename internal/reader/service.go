@@ -104,10 +104,10 @@ func (s *Service) wordGet(w http.ResponseWriter, r *http.Request) {
 		Pos:   r.FormValue("pos"),
 	}
 
-	entries, err := s.dictionaryClient.GetEntries(segment.Info.Lemma)
+	definitions, err := s.getDefinitions(*segment.Info)
 	if err != nil {
 		server.ServerError(w, err)
 	}
 
-	wordTempl(segment, entries[0]).Render(r.Context(), w)
+	wordTempl(segment, definitions).Render(r.Context(), w)
 }

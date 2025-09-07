@@ -1,7 +1,6 @@
 package dictionary
 
 import (
-	"fmt"
 	"net/http"
 	"reader/internal/client"
 	"time"

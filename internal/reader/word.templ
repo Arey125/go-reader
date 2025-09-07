@@ -1,12 +1,14 @@
 package reader
 
-import "fmt"
-import "reader/internal/dictionary"
+import (
+	"fmt"
+	"reader/internal/dictionary"
+)
 
-templ wordTempl(segment Segment, entry dictionary.DictionaryEntry) {
+templ wordTempl(segment Segment, definitions []dictionary.Definition) {
 	{{
-        popoverId := fmt.Sprintf("%s-meaning", segment.Info.Lemma)
-        anchorId := "--" + popoverId
+	popoverId := fmt.Sprintf("%s-meaning", segment.Info.Lemma)
+	anchorId := "--" + popoverId
 	}}
 	<button
 		class="badge badge-soft badge-info"
@@ -19,12 +21,14 @@ templ wordTempl(segment Segment, entry dictionary.DictionaryEntry) {
 		popover
 		id={ popoverId }
 		x-init="$el.showPopover()"
-		class="bg-base-100 rounded-box word-popover px-4 py-2 shadow-md"
+		class="bg-base-100 rounded-box word-popover px-4 py-2 shadow-md max-w-100 max-h-50"
 		style={ map[string]string{"position-anchor": anchorId} }
 	>
 		{ segment.Info.Lemma }
-        <div>
-            {entry.Meanings[0].Definitions[0].Definition}
-        </div>
+		for _, definition := range definitions {
+			<div>
+				{ definition.Definition }
+			</div>
+		}
 	</div>
 }
