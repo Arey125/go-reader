@@ -1,5 +1,7 @@
 package reader
 
+import "encoding/json"
+
 type WordInfo struct {
 	Lemma string
 	Pos   string
@@ -8,6 +10,20 @@ type WordInfo struct {
 type Segment struct {
 	Text string
 	Info *WordInfo
+}
+
+func (s *Segment) toJsonString() string {
+	fields := map[string]string{
+		"text": s.Text,
+		"lemma": s.Info.Lemma,
+		"pos": s.Info.Pos,
+	}
+
+	res, err := json.Marshal(fields)
+	if err != nil {
+		return "{}"
+	}
+	return string(res)
 }
 
 func (s *Service) splitIntoSegments(text string) ([]Segment, error) {

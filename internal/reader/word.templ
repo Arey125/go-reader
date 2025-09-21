@@ -10,13 +10,12 @@ templ wordTempl(segment Segment, definitions []dictionary.Definition) {
 	popoverId := fmt.Sprintf("%s-meaning", segment.Info.Lemma)
 	anchorId := "--" + popoverId
 	}}
-	<button
-		class="badge badge-soft badge-info"
+	<span
 		popovertarget={ popoverId }
 		style={ map[string]string{"anchor-name": anchorId} }
 	>
 		{ segment.Text }
-	</button>
+	</span>
 	<div
 		popover
 		id={ popoverId }

@@ -11,27 +11,51 @@ templ addPageTempl(user *users.UserWithPermissions) {
 			<h1 class="font-title text-xl">Add text</h1>
 		</div>
 		<div class="card bg-base-100">
-			<form method="POST" autocomplete="off" class="card-body">
+			<form
+				method="POST"
+				autocomplete="off"
+				class="card-body"
+				:enctype="type === 'text' ? null : 'multipart/form-data'"
+				x-data="{type: 'text'}"
+			>
 				<label class="label" for="title">Title</label>
-				<input
-					id="title"
-					name="title"
-					class="input"
-					type="text"
-					placeholder="Title"
-				/>
-				<label class="label" for="content">Content</label>
-				<textarea
-					id="content"
-					name="content"
-					class="textarea w-full"
-					type="text"
-					placeholder="Content"
-				></textarea>
+				<input id="title" name="title" class="input" type="text" placeholder="Title"/>
+				<fieldset class="fieldset">
+					<legend class="fieldset-legend">
+						Type
+					</legend>
+					<label class="label">
+						<input type="radio" name="type" value="text" x-model="type"/>
+						Text
+					</label>
+					<label class="label">
+						<input type="radio" name="type" value="txt" x-model="type"/>
+						TXT file
+					</label>
+				</fieldset>
+				<template x-if="type === 'text'">
+					@textUpload()
+				</template>
+				<template x-if="type === 'txt'">
+					<input type="file" name="file" class="file-input" accept=".txt"/>
+				</template>
 				<div class="justify-start mt-4">
 					<button class="btn btn-success">Add</button>
 				</div>
 			</form>
 		</div>
 	}
+}
+
+templ textUpload() {
+	<div>
+		<label class="label" for="content">Content</label>
+		<textarea
+			id="content"
+			name="content"
+			class="textarea w-full mt-2"
+			type="text"
+			placeholder="Content"
+		></textarea>
+	</div>
 }

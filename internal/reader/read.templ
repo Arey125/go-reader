@@ -5,27 +5,24 @@ import (
 	"reader/internal/users"
 )
 
-templ readPageTempl(user *users.UserWithPermissions, text Text, segments []Segment) {
+templ readPageTempl(user *users.UserWithPermissions, page TextPage, segments []Segment) {
 	@ui.Base(users.Navigation(user)) {
-		<div class="bg-base-100 whitespace-pre-line rounded-box p-6 max-w-200 mx-auto mt-2 mb-10">
+		<div class="bg-base-100 whitespace-pre-line rounded-box p-6 max-w-175 mx-auto mt-2 mb-10">
 			<div class="prose !max-w-none">
-				<h2>{ text.Title }</h2>
+				<h2>{ page.TextTitle }</h2>
 				<p>
 					for _, segment := range segments {
 						if segment.Info == nil {
 							{ segment.Text }
 						} else {
-							<button
-								class="badge badge-soft badge-accent"
+							<span
 								hx-get="/word"
 								hx-swap="outerHTML"
-                                hx-include="this"
+								hx-include="this"
+                                hx-vals={segment.toJsonString()}
 							>
 								{ segment.Text }
-								<input type="hidden" name="text" value={ segment.Text }/>
-								<input type="hidden" name="lemma" value={ segment.Info.Lemma }/>
-								<input type="hidden" name="pos" value={ segment.Info.Pos }/>
-							</button>
+							</span>
 						}
 					}
 				</p>

@@ -14,6 +14,13 @@ type Text struct {
 	UserId  int
 }
 
+type TextPage struct {
+	TextId int
+	TextTitle string
+	Page int
+	Content string
+}
+
 type Model struct {
 	db *sql.DB
 }
@@ -64,4 +71,35 @@ func (m *Model) Get(id int) (*Text, error) {
 		return nil, err
 	}
 	return &t, nil
+}
+
+func (m *Model) GetPage(textId int, page int) (*TextPage, error) {
+	t := Text{}
+
+	err := sq.Select("id", "title", "content", "user_id").
+		From("texts").
+		Where(sq.Eq{"id": textId}).
+		RunWith(m.db).
+		QueryRow().
+		Scan(&t.Id, &t.Title, &t.Content, &t.UserId)
+
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	pages := splitIntoPages(t.Content, 1000)
+	if len(pages) < page {
+		return nil, nil
+	}
+	p := TextPage{
+		TextId: t.Id,
+		TextTitle: t.Title,
+		Content: pages[page - 1],
+		Page: page - 1,
+	}
+
+	return &p, nil
 }
