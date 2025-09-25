@@ -1,14 +1,28 @@
 package reader
 
 import (
+	"fmt"
+	"net/url"
 	"reader/internal/ui"
 	"reader/internal/users"
+	"strconv"
 )
+
+func getPageUrl(from TextPage, to int) string {
+	baseUrl, err := url.Parse(fmt.Sprintf("/texts/%d", from.TextId))
+	if err != nil {
+		return "./"
+	}
+	queryParams := url.Values{}
+	queryParams.Set("page", strconv.Itoa(to))
+	baseUrl.RawQuery = queryParams.Encode()
+	return baseUrl.String()
+}
 
 templ readPageTempl(user *users.UserWithPermissions, page TextPage, segments []Segment) {
 	@ui.Base(users.Navigation(user)) {
-		<div class="bg-base-100 whitespace-pre-line rounded-box p-6 max-w-175 mx-auto mt-2 mb-10">
-			<div class="prose !max-w-none">
+		<div class="bg-base-100 whitespace-pre-line rounded-box p-6 mb-4 max-w-175 mx-auto mt-2 mb-10 flex flex-col items-center">
+			<div class="prose !max-w-none mb-6">
 				<h2>{ page.TextTitle }</h2>
 				<p>
 					for _, segment := range segments {
@@ -19,7 +33,7 @@ templ readPageTempl(user *users.UserWithPermissions, page TextPage, segments []S
 								hx-get="/word"
 								hx-swap="outerHTML"
 								hx-include="this"
-                                hx-vals={segment.toJsonString()}
+								hx-vals={ segment.toJsonString() }
 							>
 								{ segment.Text }
 							</span>
@@ -27,6 +41,89 @@ templ readPageTempl(user *users.UserWithPermissions, page TextPage, segments []S
 					}
 				</p>
 			</div>
+			<div class="join">
+				<a href={ getPageUrl(page, 1) } class="join-item btn" disabled?={ page.Page == 1 }>
+					@firstIcon()
+				</a>
+				<a href={ getPageUrl(page, page.Page-1) } class="join-item btn" disabled?={ page.Page == 1 }>
+					@prevIcon()
+				</a>
+				<span class="join-item btn">Page { page.Page }</span>
+				<a href={ getPageUrl(page, page.Page+1) } class="join-item btn" disabled?={ page.Page == page.Total }>
+					@nextIcon()
+				</a>
+				<a href={ getPageUrl(page, page.Total) } class="join-item btn" disabled?={ page.Page == page.Total }>
+					@lastIcon()
+				</a>
+			</div>
 		</div>
 	}
+}
+
+templ nextIcon() {
+	<svg
+		xmlns="http://www.w3.org/2000/svg"
+		width="20"
+		height="20"
+		viewBox="0 0 24 24"
+		fill="none"
+		stroke="currentColor"
+		stroke-width="2"
+		stroke-linecap="round"
+		stroke-linejoin="round"
+		class="lucide lucide-chevron-right-icon lucide-chevron-right"
+	>
+		<path d="m9 18 6-6-6-6"></path>
+	</svg>
+}
+
+templ prevIcon() {
+	<svg
+		xmlns="http://www.w3.org/2000/svg"
+		width="20"
+		height="20"
+		viewBox="0 0 24 24"
+		fill="none"
+		stroke="currentColor"
+		stroke-width="2"
+		stroke-linecap="round"
+		stroke-linejoin="round"
+		class="lucide lucide-chevron-left-icon lucide-chevron-left"
+	>
+		<path d="m15 18-6-6 6-6"></path>
+	</svg>
+}
+
+templ firstIcon() {
+	<svg
+		xmlns="http://www.w3.org/2000/svg"
+		width="20"
+		height="20"
+		viewBox="0 0 24 24"
+		fill="none"
+		stroke="currentColor"
+		stroke-width="2"
+		stroke-linecap="round"
+		stroke-linejoin="round"
+		class="lucide lucide-chevron-first-icon lucide-chevron-first"
+	>
+		<path d="m17 18-6-6 6-6"></path><path d="M7 6v12"></path>
+	</svg>
+}
+
+templ lastIcon() {
+	<svg
+		xmlns="http://www.w3.org/2000/svg"
+		width="20"
+		height="20"
+		viewBox="0 0 24 24"
+		fill="none"
+		stroke="currentColor"
+		stroke-width="2"
+		stroke-linecap="round"
+		stroke-linejoin="round"
+		class="lucide lucide-chevron-last-icon lucide-chevron-last"
+	>
+		<path d="m7 18 6-6-6-6"></path><path d="M17 6v12"></path>
+	</svg>
 }

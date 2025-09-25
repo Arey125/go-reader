@@ -18,6 +18,7 @@ type TextPage struct {
 	TextId int
 	TextTitle string
 	Page int
+	Total int
 	Content string
 }
 
@@ -98,7 +99,8 @@ func (m *Model) GetPage(textId int, page int) (*TextPage, error) {
 		TextId: t.Id,
 		TextTitle: t.Title,
 		Content: pages[page - 1],
-		Page: page - 1,
+		Page: page,
+		Total: len(pages),
 	}
 
 	return &p, nil

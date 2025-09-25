@@ -60,7 +60,6 @@ func (s *Service) readPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-
 	pagePtr, err := s.model.GetPage(textId, pageInd)
 	if err != nil {
 		server.ServerError(w, err)
