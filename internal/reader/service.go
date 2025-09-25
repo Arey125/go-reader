@@ -7,6 +7,7 @@ import (
 	"reader/internal/server"
 	"reader/internal/users"
 	"strconv"
+	"strings"
 )
 
 type Service struct {
@@ -69,6 +70,7 @@ func (s *Service) readPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	page := *pagePtr
+	page.Content = strings.TrimSpace(page.Content)
 
 	segments, err := s.splitIntoSegments(page.Content)
 	if err != nil {

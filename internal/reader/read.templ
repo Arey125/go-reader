@@ -29,14 +29,15 @@ templ readPageTempl(user *users.UserWithPermissions, page TextPage, segments []S
 						if segment.Info == nil {
 							{ segment.Text }
 						} else {
-							<span
+							<button
 								hx-get="/word"
 								hx-swap="outerHTML"
 								hx-include="this"
 								hx-vals={ segment.toJsonString() }
+                                class="hover:underline"
 							>
 								{ segment.Text }
-							</span>
+							</button>
 						}
 					}
 				</p>
@@ -45,11 +46,11 @@ templ readPageTempl(user *users.UserWithPermissions, page TextPage, segments []S
 				<a href={ getPageUrl(page, 1) } class="join-item btn" disabled?={ page.Page == 1 }>
 					@firstIcon()
 				</a>
-				<a href={ getPageUrl(page, page.Page-1) } class="join-item btn" disabled?={ page.Page == 1 }>
+				<a href={ getPageUrl(page, page.Page-1) } rel="prev" class="join-item btn" disabled?={ page.Page == 1 }>
 					@prevIcon()
 				</a>
 				<span class="join-item btn">Page { page.Page }</span>
-				<a href={ getPageUrl(page, page.Page+1) } class="join-item btn" disabled?={ page.Page == page.Total }>
+				<a href={ getPageUrl(page, page.Page+1) } rel="next" class="join-item btn" disabled?={ page.Page == page.Total }>
 					@nextIcon()
 				</a>
 				<a href={ getPageUrl(page, page.Total) } class="join-item btn" disabled?={ page.Page == page.Total }>
