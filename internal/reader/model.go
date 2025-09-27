@@ -3,23 +3,25 @@ package reader
 import (
 	"database/sql"
 	"reader/internal/db"
+	"time"
 
 	sq "github.com/Masterminds/squirrel"
 )
 
 type Text struct {
-	Id      int
-	Title   string
-	Content string
-	UserId  int
+	Id        int
+	Title     string
+	Content   string
+	UserId    int
+	CreatedAt time.Time
 }
 
 type TextPage struct {
-	TextId int
+	TextId    int
 	TextTitle string
-	Page int
-	Total int
-	Content string
+	Page      int
+	Total     int
+	Content   string
 }
 
 type Model struct {
@@ -32,8 +34,8 @@ func NewModel(db *sql.DB) Model {
 
 func (m *Model) Add(text Text) error {
 	_, err := sq.Insert("texts").
-		Columns("title", "content", "user_id").
-		Values(text.Title, text.Content, text.UserId).
+		Columns("title", "content", "user_id", "created_at").
+		Values(text.Title, text.Content, text.UserId, text.CreatedAt).
 		RunWith(m.db).
 		Exec()
 
@@ -41,7 +43,7 @@ func (m *Model) Add(text Text) error {
 }
 
 func (m *Model) All() ([]Text, error) {
-	rows, err := sq.Select("id", "title", "content", "user_id").
+	rows, err := sq.Select("id", "title", "content", "user_id", "created_at").
 		From("texts").
 		RunWith(m.db).
 		Query()
@@ -51,19 +53,19 @@ func (m *Model) All() ([]Text, error) {
 	}
 
 	return db.Collect(rows, func(r *sql.Rows, t *Text) error {
-		return rows.Scan(&t.Id, &t.Title, &t.Content, &t.UserId)
+		return rows.Scan(&t.Id, &t.Title, &t.Content, &t.UserId, &t.CreatedAt)
 	})
 }
 
 func (m *Model) Get(id int) (*Text, error) {
 	t := Text{}
 
-	err := sq.Select("id", "title", "content", "user_id").
+	err := sq.Select("id", "title", "content", "user_id", "created_at").
 		From("texts").
 		Where(sq.Eq{"id": id}).
 		RunWith(m.db).
 		QueryRow().
-		Scan(&t.Id, &t.Title, &t.Content, &t.UserId)
+		Scan(&t.Id, &t.Title, &t.Content, &t.UserId, &t.CreatedAt)
 
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -96,11 +98,11 @@ func (m *Model) GetPage(textId int, page int) (*TextPage, error) {
 		return nil, nil
 	}
 	p := TextPage{
-		TextId: t.Id,
+		TextId:    t.Id,
 		TextTitle: t.Title,
-		Content: pages[page - 1],
-		Page: page,
-		Total: len(pages),
+		Content:   pages[page-1],
+		Page:      page,
+		Total:     len(pages),
 	}
 
 	return &p, nil

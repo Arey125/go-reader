@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"reader/internal/server"
 	"reader/internal/users"
+	"time"
 )
 
 func (s *Service) addPage(w http.ResponseWriter, r *http.Request) {
@@ -49,6 +50,7 @@ func (s *Service) addPost(w http.ResponseWriter, r *http.Request) {
 		Title:   title,
 		Content: content,
 		UserId:  user.User.Id,
+		CreatedAt: time.Now(),
 	})
 
 	if err != nil {

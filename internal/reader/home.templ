@@ -1,9 +1,9 @@
 package reader
 
 import (
+	"fmt"
 	"reader/internal/ui"
 	"reader/internal/users"
-	"fmt"
 )
 
 templ homePageTempl(user *users.UserWithPermissions, texts []Text) {
@@ -16,10 +16,36 @@ templ homePageTempl(user *users.UserWithPermissions, texts []Text) {
 			for _, text := range texts {
 				<div class="card bg-base-100 mb-4">
 					<div class="card-body">
-						<a href={fmt.Sprintf("/texts/%d", text.Id)} class="card-title">{ text.Title }</a>
+						<a href={ fmt.Sprintf("/texts/%d", text.Id) } class="card-title">{ text.Title }</a>
+						<ul class="flex flex-col gap-2 mt-2">
+							<li class="flex gap-1 opacity-70 items-center">
+								@homeIcon()
+								{ text.CreatedAt.Format("02.01.2006 15:04:05") }
+							</li>
+						</ul>
 					</div>
 				</div>
 			}
 		</div>
 	}
+}
+
+templ homeIcon() {
+	<svg
+		xmlns="http://www.w3.org/2000/svg"
+		width="16"
+		height="16"
+		viewBox="0 0 24 24"
+		fill="none"
+		stroke="currentColor"
+		stroke-width="2"
+		stroke-linecap="round"
+		stroke-linejoin="round"
+		class="lucide lucide-calendar-icon lucide-calendar"
+	>
+		<path d="M8 2v4"></path>
+		<path d="M16 2v4"></path>
+		<rect width="18" height="18" x="3" y="4" rx="2"></rect>
+		<path d="M3 10h18"></path>
+	</svg>
 }
