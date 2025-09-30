@@ -14,6 +14,7 @@ type Service struct {
 	model            *Model
 	nlpClient        *nlp.Client
 	dictionaryClient *dictionary.Client
+	wordFreq WordFreq
 }
 
 func NewService(model *Model, nlpClient *nlp.Client, dictionaryClient *dictionary.Client) Service {
@@ -21,6 +22,7 @@ func NewService(model *Model, nlpClient *nlp.Client, dictionaryClient *dictionar
 		model:            model,
 		nlpClient:        nlpClient,
 		dictionaryClient: dictionaryClient,
+		wordFreq: NewWordFreq(),
 	}
 }
 
@@ -93,5 +95,6 @@ func (s *Service) wordGet(w http.ResponseWriter, r *http.Request) {
 		server.ServerError(w, err)
 	}
 
-	wordTempl(segment, definitions).Render(r.Context(), w)
+	freq := s.wordFreq.Get(segment.Info.Lemma)
+	wordTempl(segment, definitions, freq).Render(r.Context(), w)
 }

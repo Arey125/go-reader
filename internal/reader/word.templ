@@ -5,7 +5,7 @@ import (
 	"reader/internal/dictionary"
 )
 
-templ wordTempl(segment Segment, definitions []dictionary.Definition) {
+templ wordTempl(segment Segment, definitions []dictionary.Definition, freq *WordFreqRecord) {
 	{{
 	popoverId := fmt.Sprintf("%s-meaning", segment.Info.Lemma)
 	anchorId := "--" + popoverId
@@ -25,6 +25,8 @@ templ wordTempl(segment Segment, definitions []dictionary.Definition) {
 		style={ map[string]string{"position-anchor": anchorId} }
 	>
 		{ segment.Info.Lemma }
+        <br/>
+		{ freq.Position }
 		for _, definition := range definitions {
 			<div>
 				{ definition.Definition }
