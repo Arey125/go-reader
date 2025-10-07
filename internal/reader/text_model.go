@@ -24,15 +24,15 @@ type TextPage struct {
 	Content   string
 }
 
-type Model struct {
+type TextModel struct {
 	db *sql.DB
 }
 
-func NewModel(db *sql.DB) Model {
-	return Model{db}
+func NewTextModel(db *sql.DB) TextModel {
+	return TextModel{db}
 }
 
-func (m *Model) Add(text Text) error {
+func (m *TextModel) Add(text Text) error {
 	_, err := sq.Insert("texts").
 		Columns("title", "content", "user_id", "created_at").
 		Values(text.Title, text.Content, text.UserId, text.CreatedAt).
@@ -42,7 +42,7 @@ func (m *Model) Add(text Text) error {
 	return err
 }
 
-func (m *Model) All() ([]Text, error) {
+func (m *TextModel) All() ([]Text, error) {
 	rows, err := sq.Select("id", "title", "content", "user_id", "created_at").
 		From("texts").
 		RunWith(m.db).
@@ -57,7 +57,7 @@ func (m *Model) All() ([]Text, error) {
 	})
 }
 
-func (m *Model) Get(id int) (*Text, error) {
+func (m *TextModel) Get(id int) (*Text, error) {
 	t := Text{}
 
 	err := sq.Select("id", "title", "content", "user_id", "created_at").
@@ -76,7 +76,7 @@ func (m *Model) Get(id int) (*Text, error) {
 	return &t, nil
 }
 
-func (m *Model) GetPage(textId int, page int) (*TextPage, error) {
+func (m *TextModel) GetPage(textId int, page int) (*TextPage, error) {
 	t := Text{}
 
 	err := sq.Select("id", "title", "content", "user_id").

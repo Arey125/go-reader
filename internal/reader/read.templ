@@ -1,6 +1,7 @@
 package reader
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/url"
 	"reader/internal/ui"
@@ -20,6 +21,11 @@ func getPageUrl(from TextPage, to int) string {
 }
 
 templ readPageTempl(user *users.UserWithPermissions, page TextPage, segments []Segment) {
+	{{
+	pageJson, _ := json.Marshal(map[string]int{
+		"page": page.Page,
+	})
+	}}
 	@ui.Base(users.Navigation(user)) {
 		<div class="bg-base-100 whitespace-pre-line rounded-box p-6 mb-4 max-w-175 mx-auto mt-2 mb-10 flex flex-col items-center">
 			<div class="prose !max-w-none mb-6">
@@ -34,7 +40,7 @@ templ readPageTempl(user *users.UserWithPermissions, page TextPage, segments []S
 								hx-swap="outerHTML"
 								hx-include="this"
 								hx-vals={ segment.toJsonString() }
-                                class="hover:underline"
+								class="hover:underline"
 							>
 								{ segment.Text }
 							</button>
@@ -42,23 +48,34 @@ templ readPageTempl(user *users.UserWithPermissions, page TextPage, segments []S
 					}
 				</p>
 			</div>
-			<div class="join">
-				<a href={ getPageUrl(page, 1) } class="join-item btn" disabled?={ page.Page == 1 }>
-					@firstIcon()
-				</a>
-				<a href={ getPageUrl(page, page.Page-1) } rel="prev" class="join-item btn" disabled?={ page.Page == 1 }>
-					@prevIcon()
-				</a>
-				<span class="join-item btn">Page { page.Page }</span>
-				<a href={ getPageUrl(page, page.Page+1) } rel="next" class="join-item btn" disabled?={ page.Page == page.Total }>
-					@nextIcon()
-				</a>
-				<a href={ getPageUrl(page, page.Total) } class="join-item btn" disabled?={ page.Page == page.Total }>
-					@lastIcon()
-				</a>
-			</div>
+			<button
+				class="btn btn-success mb-4"
+				hx-post={ fmt.Sprintf("/texts/%d/save-words", page.TextId) }
+				hx-vals={ string(pageJson) }
+			>
+				Save Words
+			</button>
+			@paging(page)
 		</div>
 	}
+}
+
+templ paging(page TextPage) {
+	<div class="join">
+		<a href={ getPageUrl(page, 1) } class="join-item btn" disabled?={ page.Page == 1 }>
+			@firstIcon()
+		</a>
+		<a href={ getPageUrl(page, page.Page-1) } rel="prev" class="join-item btn" disabled?={ page.Page == 1 }>
+			@prevIcon()
+		</a>
+		<span class="join-item btn">Page { page.Page }</span>
+		<a href={ getPageUrl(page, page.Page+1) } rel="next" class="join-item btn" disabled?={ page.Page == page.Total }>
+			@nextIcon()
+		</a>
+		<a href={ getPageUrl(page, page.Total) } class="join-item btn" disabled?={ page.Page == page.Total }>
+			@lastIcon()
+		</a>
+	</div>
 }
 
 templ nextIcon() {

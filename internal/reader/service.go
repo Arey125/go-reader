@@ -6,23 +6,23 @@ import (
 	"reader/internal/nlp"
 	"reader/internal/server"
 	"reader/internal/users"
-	"strconv"
-	"strings"
 )
 
 type Service struct {
-	model            *Model
+	textModel        *TextModel
+	wordModel        *WordModel
 	nlpClient        *nlp.Client
 	dictionaryClient *dictionary.Client
-	wordFreq WordFreq
+	wordFreq         WordFreq
 }
 
-func NewService(model *Model, nlpClient *nlp.Client, dictionaryClient *dictionary.Client) Service {
+func NewService(textModel *TextModel, wordModel *WordModel, nlpClient *nlp.Client, dictionaryClient *dictionary.Client) Service {
 	return Service{
-		model:            model,
+		textModel:        textModel,
+		wordModel:        wordModel,
 		nlpClient:        nlpClient,
 		dictionaryClient: dictionaryClient,
-		wordFreq: NewWordFreq(),
+		wordFreq:         NewWordFreq(),
 	}
 }
 
@@ -31,13 +31,14 @@ func (s *Service) Register(mux *http.ServeMux) {
 	mux.HandleFunc("GET /texts/add", s.addPage)
 	mux.HandleFunc("POST /texts/add", s.addPost)
 	mux.HandleFunc("GET /texts/{id}", s.readPage)
+	mux.HandleFunc("POST /texts/{id}/save-words", s.saveWordsPost)
 
 	mux.HandleFunc("GET /word", s.wordGet)
 }
 
 func (s *Service) homePage(w http.ResponseWriter, r *http.Request) {
 	user := users.GetUser(r)
-	texts, err := s.model.All()
+	texts, err := s.textModel.All()
 	if err != nil {
 		server.ServerError(w, err)
 	}
@@ -46,34 +47,12 @@ func (s *Service) homePage(w http.ResponseWriter, r *http.Request) {
 
 func (s *Service) readPage(w http.ResponseWriter, r *http.Request) {
 	user := users.GetUser(r)
-	textIdStr := r.PathValue("id")
-	pageIndStr := r.FormValue("page")
-	if pageIndStr == "" {
-		pageIndStr = "1"
-	}
-
-	textId, err := strconv.Atoi(textIdStr)
+	pagePtr, err := s.getPage(w, r.PathValue("id"), r.FormValue("page"))
 	if err != nil {
-		server.HttpError(w, http.StatusBadRequest)
-		return
-	}
-	pageInd, err := strconv.Atoi(pageIndStr)
-	if err != nil {
-		server.HttpError(w, http.StatusBadRequest)
 		return
 	}
 
-	pagePtr, err := s.model.GetPage(textId, pageInd)
-	if err != nil {
-		server.ServerError(w, err)
-	}
-	if pagePtr == nil {
-		server.HttpError(w, http.StatusNotFound)
-		return
-	}
 	page := *pagePtr
-	page.Content = strings.TrimSpace(page.Content)
-
 	segments, err := s.splitIntoSegments(page.Content)
 	if err != nil {
 		server.ServerError(w, err)
@@ -97,4 +76,36 @@ func (s *Service) wordGet(w http.ResponseWriter, r *http.Request) {
 
 	freq := s.wordFreq.Get(segment.Info.Lemma)
 	wordTempl(segment, definitions, freq).Render(r.Context(), w)
+}
+
+func (s *Service) saveWordsPost(w http.ResponseWriter, r *http.Request) {
+	pagePtr, err := s.getPage(w, r.PathValue("id"), r.FormValue("page"))
+	if err != nil {
+		return
+	}
+
+	page := *pagePtr
+	segments, err := s.nlpClient.GetWords(page.Content)
+	if err != nil {
+		server.ServerError(w, err)
+	}
+
+	words := make([]Word, 0, len(segments))
+	for _, segment := range segments {
+		words = append(words, Word{
+			Word: segment.Lemma,
+			Pos:  segment.Pos,
+		})
+	}
+
+	if err != nil {
+		server.ServerError(w, err)
+	}
+
+	err = s.wordModel.AddList(words)
+	if err != nil {
+		server.ServerError(w, err)
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }

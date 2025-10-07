@@ -46,7 +46,7 @@ func (s *Service) addPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := s.model.Add(Text{
+	err := s.textModel.Add(Text{
 		Title:   title,
 		Content: content,
 		UserId:  user.User.Id,

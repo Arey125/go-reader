@@ -42,8 +42,9 @@ func main() {
 	nlpClient := nlp.NewClient(cfg.NlpUrl)
 	dictionaryClient := dictionary.NewClient()
 
-	readerModel := reader.NewModel(db)
-	readerService := reader.NewService(&readerModel, &nlpClient, &dictionaryClient)
+	textModel := reader.NewTextModel(db)
+	wordModel := reader.NewWordModel(db)
+	readerService := reader.NewService(&textModel, &wordModel, &nlpClient, &dictionaryClient)
 	readerService.Register(mux)
 
 	server := http.Server{
