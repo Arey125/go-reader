@@ -52,6 +52,16 @@ func (s *Service) readPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if r.FormValue("cur") != "" {
+		curPagePtr, err := s.getPage(w, r.PathValue("id"), r.FormValue("cur"))
+		if err != nil {
+			server.HttpError(w, http.StatusBadRequest)
+		}
+		if curPagePtr != nil {
+			s.saveWordsFromPage(*curPagePtr)
+		}
+	}
+
 	page := *pagePtr
 	segments, err := s.splitIntoSegments(page.Content)
 	if err != nil {
@@ -85,24 +95,7 @@ func (s *Service) saveWordsPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	page := *pagePtr
-	segments, err := s.nlpClient.GetWords(page.Content)
-	if err != nil {
-		server.ServerError(w, err)
-	}
-
-	words := make([]Word, 0, len(segments))
-	for _, segment := range segments {
-		words = append(words, Word{
-			Word: segment.Lemma,
-			Pos:  segment.Pos,
-		})
-	}
-
-	if err != nil {
-		server.ServerError(w, err)
-	}
-
-	err = s.wordModel.AddList(words)
+	err = s.saveWordsFromPage(page)
 	if err != nil {
 		server.ServerError(w, err)
 	}
