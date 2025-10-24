@@ -2,15 +2,17 @@ package reader
 
 import (
 	"database/sql"
+	"encoding/json"
+	"reader/internal/dictionary"
 
 	sq "github.com/Masterminds/squirrel"
 )
 
 type Word struct {
-	Id         int
-	Word       string
-	Pos        string
-	Definition *string
+	Id          int
+	Word        string
+	Pos         string
+	Definitions *string
 }
 
 type WordModel struct {
@@ -43,4 +45,21 @@ func (m *WordModel) AddList(words []Word) error {
 	}
 
 	return tx.Commit()
+}
+
+func (m *WordModel) SaveDefinitions(word Word, definitions []dictionary.Definition) error {
+	definitionsJson, err := json.Marshal(definitions)
+	if err != nil {
+		return err
+	}
+
+	definitionsStr := string(definitionsJson)
+
+	_, err = sq.Update("words").
+		Set("definitions", definitionsStr).
+		Where(sq.Eq{"word": word.Word, "pos": word.Pos}).
+		RunWith(m.db).
+		Exec()
+
+	return err
 }

@@ -31,7 +31,6 @@ func (s *Service) Register(mux *http.ServeMux) {
 	mux.HandleFunc("GET /texts/add", s.addPage)
 	mux.HandleFunc("POST /texts/add", s.addPost)
 	mux.HandleFunc("GET /texts/{id}", s.readPage)
-	mux.HandleFunc("POST /texts/{id}/save-words", s.saveWordsPost)
 
 	mux.HandleFunc("GET /word", s.wordGet)
 }
@@ -84,21 +83,16 @@ func (s *Service) wordGet(w http.ResponseWriter, r *http.Request) {
 		server.ServerError(w, err)
 	}
 
+	word := Word{
+		Word: segment.Info.Lemma,
+		Pos:  segment.Info.Pos,
+	}
+	s.wordModel.AddList([]Word{word})
+	s.wordModel.SaveDefinitions(Word{
+		Word: segment.Info.Lemma,
+		Pos:  segment.Info.Pos,
+	}, definitions)
+
 	freq := s.wordFreq.Get(segment.Info.Lemma)
 	wordTempl(segment, definitions, freq).Render(r.Context(), w)
-}
-
-func (s *Service) saveWordsPost(w http.ResponseWriter, r *http.Request) {
-	pagePtr, err := s.getPage(w, r.PathValue("id"), r.FormValue("page"))
-	if err != nil {
-		return
-	}
-
-	page := *pagePtr
-	err = s.saveWordsFromPage(page)
-	if err != nil {
-		server.ServerError(w, err)
-	}
-
-	w.WriteHeader(http.StatusNoContent)
 }

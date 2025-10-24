@@ -2,6 +2,6 @@ CREATE TABLE words (
     id INTEGER PRIMARY KEY,
 	word TEXT NOT NULL,
 	pos TEXT NOT NULL,
-	definition TEXT,
+	definitions TEXT,
     unique (word, pos)
 );
