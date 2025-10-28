@@ -1,11 +1,11 @@
-package handler
+package ui
 
 import (
 	"reader/internal/ui"
 	"reader/internal/users"
 )
 
-templ addPageTempl(user *users.UserWithPermissions) {
+templ AddPage(user *users.UserWithPermissions) {
 	@ui.Base(users.Navigation(user)) {
 		<div class="flex items-center justify-between gap-4 pb-4 h-16">
 			<h1 class="font-title text-xl">Add text</h1>

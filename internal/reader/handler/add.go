@@ -4,6 +4,7 @@ import (
 	"io"
 	"net/http"
 	"reader/internal/reader"
+	"reader/internal/reader/ui"
 	"reader/internal/server"
 	"reader/internal/users"
 	"time"
@@ -11,7 +12,7 @@ import (
 
 func (s *Handler) addPage(w http.ResponseWriter, r *http.Request) {
 	user := users.GetUser(r)
-	addPageTempl(user).Render(r.Context(), w)
+	ui.AddPage(user).Render(r.Context(), w)
 }
 
 func (s *Handler) addPost(w http.ResponseWriter, r *http.Request) {

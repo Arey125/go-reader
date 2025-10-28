@@ -1,4 +1,4 @@
-package handler
+package ui
 
 import (
 	"fmt"
@@ -32,7 +32,7 @@ func getNextPageUrl(from reader.TextPage, to int) string {
 	return baseUrl.String()
 }
 
-templ readPageTempl(user *users.UserWithPermissions, page reader.TextPage, segments []reader.Segment) {
+templ ReadPage(user *users.UserWithPermissions, page reader.TextPage, segments []reader.Segment) {
 	@ui.Base(users.Navigation(user)) {
 		<div class="bg-base-100 whitespace-pre-line rounded-box p-6 mb-4 max-w-175 mx-auto mt-2 mb-10 flex flex-col items-center">
 			<div class="prose !max-w-none mb-6">

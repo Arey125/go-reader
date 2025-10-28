@@ -1,12 +1,13 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
-	"reader/internal/reader"
 	"reader/internal/server"
 	"reader/internal/users"
 	"strconv"
+
+	"reader/internal/reader"
+	"reader/internal/reader/ui"
 )
 
 type Handler struct {
@@ -34,7 +35,7 @@ func (h *Handler) homePage(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		server.ServerError(w, err)
 	}
-	homePageTempl(user, texts).Render(r.Context(), w)
+	ui.HomePage(user, texts).Render(r.Context(), w)
 }
 
 func (h *Handler) readPage(w http.ResponseWriter, r *http.Request) {
@@ -67,7 +68,7 @@ func (h *Handler) readPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	page := *pagePtr
-	readPageTempl(user, page, segments).Render(r.Context(), w)
+	ui.ReadPage(user, page, segments).Render(r.Context(), w)
 }
 
 func (h *Handler) wordGet(w http.ResponseWriter, r *http.Request) {
@@ -83,5 +84,5 @@ func (h *Handler) wordGet(w http.ResponseWriter, r *http.Request) {
 		server.ServerError(w, err)
 	}
 
-	wordTempl(segment, definitions, freq).Render(r.Context(), w)
+	ui.Word(segment, definitions, freq).Render(r.Context(), w)
 }
