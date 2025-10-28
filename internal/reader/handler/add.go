@@ -1,19 +1,20 @@
-package reader
+package handler
 
 import (
 	"io"
 	"net/http"
+	"reader/internal/reader"
 	"reader/internal/server"
 	"reader/internal/users"
 	"time"
 )
 
-func (s *Service) addPage(w http.ResponseWriter, r *http.Request) {
+func (s *Handler) addPage(w http.ResponseWriter, r *http.Request) {
 	user := users.GetUser(r)
 	addPageTempl(user).Render(r.Context(), w)
 }
 
-func (s *Service) addPost(w http.ResponseWriter, r *http.Request) {
+func (s *Handler) addPost(w http.ResponseWriter, r *http.Request) {
 	user := users.GetUser(r)
 	title := r.FormValue("title")
 	uploadType := r.FormValue("type")
@@ -46,7 +47,7 @@ func (s *Service) addPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := s.textModel.Add(Text{
+	err := s.service.AddText(reader.Text{
 		Title:   title,
 		Content: content,
 		UserId:  user.User.Id,

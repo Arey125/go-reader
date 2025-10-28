@@ -1,11 +1,12 @@
-package reader
+package handler
 
 import (
 	"fmt"
 	"reader/internal/dictionary"
+	"reader/internal/reader"
 )
 
-templ wordTempl(segment Segment, definitions []dictionary.Definition, freq *WordFreqRecord) {
+templ wordTempl(segment reader.Segment, definitions []dictionary.Definition, freq *reader.WordFreqRecord) {
 	{{
 	popoverId := fmt.Sprintf("%s-meaning", segment.Info.Lemma)
 	anchorId := "--" + popoverId

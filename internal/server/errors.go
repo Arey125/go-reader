@@ -1,6 +1,8 @@
 package server
 
-import "net/http"
+import (
+	"net/http"
+)
 
 func ServerError(w http.ResponseWriter, err error) {
 	http.Error(w, "Internal server error", http.StatusInternalServerError)

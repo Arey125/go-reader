@@ -12,7 +12,7 @@ type Segment struct {
 	Info *WordInfo
 }
 
-func (s *Segment) toJsonString() string {
+func (s *Segment) ToJsonString() string {
 	fields := map[string]string{
 		"text": s.Text,
 		"lemma": s.Info.Lemma,

@@ -1,11 +1,9 @@
 package reader
 
 import (
-	"net/http"
+	"errors"
 	"reader/internal/dictionary"
 	"reader/internal/nlp"
-	"reader/internal/server"
-	"reader/internal/users"
 )
 
 type Service struct {
@@ -16,7 +14,12 @@ type Service struct {
 	wordFreq         WordFreq
 }
 
-func NewService(textModel *TextModel, wordModel *WordModel, nlpClient *nlp.Client, dictionaryClient *dictionary.Client) Service {
+func NewService(
+	textModel *TextModel,
+	wordModel *WordModel,
+	nlpClient *nlp.Client,
+	dictionaryClient *dictionary.Client,
+) Service {
 	return Service{
 		textModel:        textModel,
 		wordModel:        wordModel,
@@ -26,32 +29,22 @@ func NewService(textModel *TextModel, wordModel *WordModel, nlpClient *nlp.Clien
 	}
 }
 
-func (s *Service) Register(mux *http.ServeMux) {
-	mux.HandleFunc("GET /{$}", s.homePage)
-	mux.HandleFunc("GET /texts/add", s.addPage)
-	mux.HandleFunc("POST /texts/add", s.addPost)
-	mux.HandleFunc("GET /texts/{id}", s.readPage)
+var ErrNotFound = errors.New("Not found")
 
-	mux.HandleFunc("GET /word", s.wordGet)
+func (s *Service) GetAllTexts() ([]Text, error) {
+	return s.textModel.All()
 }
 
-func (s *Service) homePage(w http.ResponseWriter, r *http.Request) {
-	user := users.GetUser(r)
-	texts, err := s.textModel.All()
+func (s *Service) GetPageAndSegments(textId int, pageInd int) (*TextPage, []Segment, error) {
+	pagePtr, err := s.getPage(textId, pageInd)
 	if err != nil {
-		server.ServerError(w, err)
+		return nil, nil, err
 	}
-	homePageTempl(user, texts).Render(r.Context(), w)
-}
-
-func (s *Service) readPage(w http.ResponseWriter, r *http.Request) {
-	user := users.GetUser(r)
-	pagePtr, err := s.getPage(w, r.PathValue("id"), r.FormValue("page"))
-	if err != nil {
-		return
+	if pagePtr == nil {
+		return nil, nil, nil
 	}
 
-	if r.FormValue("cur") != "" {
+	/*if r.FormValue("cur") != "" {
 		curPagePtr, err := s.getPage(w, r.PathValue("id"), r.FormValue("cur"))
 		if err != nil {
 			server.HttpError(w, http.StatusBadRequest)
@@ -59,28 +52,21 @@ func (s *Service) readPage(w http.ResponseWriter, r *http.Request) {
 		if curPagePtr != nil {
 			s.saveWordsFromPage(*curPagePtr)
 		}
-	}
+	}*/
 
 	page := *pagePtr
 	segments, err := s.splitIntoSegments(page.Content)
 	if err != nil {
-		server.ServerError(w, err)
+		return nil, nil, err
 	}
 
-	readPageTempl(user, page, segments).Render(r.Context(), w)
+	return pagePtr, segments, nil
 }
 
-func (s *Service) wordGet(w http.ResponseWriter, r *http.Request) {
-	segment := Segment{}
-	segment.Text = r.FormValue("text")
-	segment.Info = &WordInfo{
-		Lemma: r.FormValue("lemma"),
-		Pos:   r.FormValue("pos"),
-	}
-
+func (s *Service) GetWordDefinitionsAndFreq(segment Segment) ([]dictionary.Definition, *WordFreqRecord, error) {
 	definitions, err := s.getDefinitions(*segment.Info)
 	if err != nil {
-		server.ServerError(w, err)
+		return nil, nil, err
 	}
 
 	word := Word{
@@ -94,5 +80,9 @@ func (s *Service) wordGet(w http.ResponseWriter, r *http.Request) {
 	}, definitions)
 
 	freq := s.wordFreq.Get(segment.Info.Lemma)
-	wordTempl(segment, definitions, freq).Render(r.Context(), w)
+	return definitions, freq, nil
+}
+
+func (s *Service) AddText(text Text) error {
+	return s.textModel.Add(text)
 }

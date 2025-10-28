@@ -1,12 +1,13 @@
-package reader
+package handler
 
 import (
 	"fmt"
 	"reader/internal/ui"
 	"reader/internal/users"
+	"reader/internal/reader"
 )
 
-templ homePageTempl(user *users.UserWithPermissions, texts []Text) {
+templ homePageTempl(user *users.UserWithPermissions, texts []reader.Text) {
 	@ui.Base(users.Navigation(user)) {
 		<div class="flex items-center justify-between gap-4 pb-4 h-16">
 			<h1 class="font-title text-xl">Reader</h1>

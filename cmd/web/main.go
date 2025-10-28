@@ -11,6 +11,7 @@ import (
 	"reader/internal/dictionary"
 	"reader/internal/nlp"
 	"reader/internal/reader"
+	readerHandler "reader/internal/reader/handler"
 	"reader/internal/users"
 
 	"reader/static"
@@ -45,7 +46,8 @@ func main() {
 	textModel := reader.NewTextModel(db)
 	wordModel := reader.NewWordModel(db)
 	readerService := reader.NewService(&textModel, &wordModel, &nlpClient, &dictionaryClient)
-	readerService.Register(mux)
+	readerServiceHandler := readerHandler.New(&readerService)
+	readerServiceHandler.Register(mux)
 
 	server := http.Server{
 		Addr:         fmt.Sprintf(":%d", cfg.Port),
@@ -63,8 +65,8 @@ func main() {
 		}
 		return
 	}
-	fmt.Printf("Listening on http://127.0.0.1:%d\n", cfg.Port)
 
+	fmt.Printf("Listening on http://127.0.0.1:%d\n", cfg.Port)
 	err := server.ListenAndServe()
 	if err != nil {
 		panic(err)
