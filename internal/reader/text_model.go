@@ -25,7 +25,7 @@ type TextPage struct {
 }
 
 type TextModel struct {
-	db *sql.DB
+	db sq.BaseRunner
 }
 
 func NewTextModel(db *sql.DB) TextModel {

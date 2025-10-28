@@ -16,35 +16,44 @@ type Word struct {
 }
 
 type WordModel struct {
-	db *sql.DB
+	db sq.BaseRunner
 }
 
 func NewWordModel(db *sql.DB) WordModel {
 	return WordModel{db}
 }
 
-func (m *WordModel) AddList(words []Word) error {
-	tx, err := m.db.Begin()
+func (m *WordModel) WithTx() (*WordModel, error) {
+	tx, err := m.db.(*sql.DB).Begin()
 	if err != nil {
-		return err
+		return nil, err
 	}
+	return &WordModel{tx}, nil
+}
 
+func (m *WordModel) Commit() error {
+	return m.db.(*sql.Tx).Commit()
+}
+
+func (m *WordModel) Rollback() error {
+	return m.db.(*sql.Tx).Rollback()
+}
+
+func (m *WordModel) AddList(words []Word) error {
 	for _, word := range words {
 		_, err := sq.Insert("").
 			Options("OR IGNORE").
 			Into("words").
 			Columns("word", "pos").
 			Values(word.Word, word.Pos).
-			RunWith(tx).
+			RunWith(m.db).
 			Exec()
 
 		if err != nil {
-			tx.Rollback()
 			return err
 		}
 	}
-
-	return tx.Commit()
+	return nil
 }
 
 func (m *WordModel) SaveDefinitions(word Word, definitions []dictionary.Definition) error {
