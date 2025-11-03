@@ -31,13 +31,25 @@ func getDefinitionsFromEntry(entry dictionary.DictionaryEntry, wordPos string) [
 }
 
 func (s *Service) getDefinitions(wordInfo WordInfo) ([]dictionary.Definition, error) {
+	word := Word{
+		Word: wordInfo.Lemma,
+		Pos:  wordInfo.Pos,
+	}
+	definitions, err := s.wordModel.GetDefinitions(word)
+	if err != nil {
+		return nil, err
+	}
+	if definitions != nil {
+		return definitions, nil
+	}
+
 	entries, err := s.dictionaryClient.GetEntries(wordInfo.Lemma)
 
 	if err != nil {
 		return nil, err
 	}
 
-	definitions := make([]dictionary.Definition, 0)
+	definitions = make([]dictionary.Definition, 0)
 	for _, entry := range entries {
 		definitions = append(definitions, getDefinitionsFromEntry(entry, wordInfo.Pos)...)
 	}

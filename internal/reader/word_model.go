@@ -72,3 +72,34 @@ func (m *WordModel) SaveDefinitions(word Word, definitions []dictionary.Definiti
 
 	return err
 }
+
+func (m *WordModel) GetDefinitions(word Word) ([]dictionary.Definition, error) {
+	var definitionsJsonStr *string
+
+	err := sq.Select("definitions").
+		From("words").
+		Where(sq.Eq{"word": word.Word, "pos": word.Pos}).
+		RunWith(m.db).
+		QueryRow().
+		Scan(&definitionsJsonStr)
+
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	if definitionsJsonStr == nil {
+		return nil, nil
+	}
+	
+	definitions := []dictionary.Definition{}
+	err = json.Unmarshal([]byte(*definitionsJsonStr), &definitions)
+	if err != nil {
+		return nil, err
+	}
+
+	return definitions, nil
+}

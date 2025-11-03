@@ -20,18 +20,6 @@ func getPageUrl(from reader.TextPage, to int) string {
 	return baseUrl.String()
 }
 
-func getNextPageUrl(from reader.TextPage, to int) string {
-	baseUrl, err := url.Parse(fmt.Sprintf("/texts/%d", from.TextId))
-	if err != nil {
-		return "./"
-	}
-	queryParams := url.Values{}
-	queryParams.Set("page", strconv.Itoa(to))
-	queryParams.Set("cur", strconv.Itoa(from.Page))
-	baseUrl.RawQuery = queryParams.Encode()
-	return baseUrl.String()
-}
-
 templ ReadPage(user *users.UserWithPermissions, page reader.TextPage, segments []reader.Segment) {
 	@ui.Base(users.Navigation(user)) {
 		<div class="bg-base-100 whitespace-pre-line rounded-box p-6 mb-4 max-w-175 mx-auto mt-2 mb-10 flex flex-col items-center">
@@ -69,7 +57,7 @@ templ paging(page reader.TextPage) {
 			@prevIcon()
 		</a>
 		<span class="join-item btn">Page { page.Page }</span>
-		<a href={ getNextPageUrl(page, page.Page+1) } rel="next" class="join-item btn" disabled?={ page.Page == page.Total }>
+		<a href={ getPageUrl(page, page.Page+1) } rel="next" class="join-item btn" disabled?={ page.Page == page.Total }>
 			@nextIcon()
 		</a>
 		<a href={ getPageUrl(page, page.Total) } class="join-item btn" disabled?={ page.Page == page.Total }>

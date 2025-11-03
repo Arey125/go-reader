@@ -59,6 +59,9 @@ func (s *Service) GetPageAndSegments(textId int, pageInd int) (*TextPage, []Segm
 	if err != nil {
 		return nil, nil, err
 	}
+	if err = s.SaveWordsFromPage(page); err != nil {
+		return nil, nil, err
+	}
 
 	return pagePtr, segments, nil
 }
