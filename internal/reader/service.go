@@ -7,16 +7,16 @@ import (
 )
 
 type Service struct {
-	textModel        *TextModel
-	wordModel        *WordModel
+	textModel        TextModel
+	wordModel        WordModel
 	nlpClient        *nlp.Client
 	dictionaryClient *dictionary.Client
 	wordFreq         WordFreq
 }
 
 func NewService(
-	textModel *TextModel,
-	wordModel *WordModel,
+	textModel TextModel,
+	wordModel WordModel,
 	nlpClient *nlp.Client,
 	dictionaryClient *dictionary.Client,
 ) Service {
@@ -43,16 +43,6 @@ func (s *Service) GetPageAndSegments(textId int, pageInd int) (*TextPage, []Segm
 	if pagePtr == nil {
 		return nil, nil, nil
 	}
-
-	/*if r.FormValue("cur") != "" {
-		curPagePtr, err := s.getPage(w, r.PathValue("id"), r.FormValue("cur"))
-		if err != nil {
-			server.HttpError(w, http.StatusBadRequest)
-		}
-		if curPagePtr != nil {
-			s.saveWordsFromPage(*curPagePtr)
-		}
-	}*/
 
 	page := *pagePtr
 	segments, err := s.splitIntoSegments(page.Content)

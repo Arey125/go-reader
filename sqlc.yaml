@@ -6,3 +6,9 @@ sql:
     gen:
       go:
         out: "internal/db/queries"
+        overrides:
+          - db_type: "TEXT"
+            nullable: true
+            go_type:
+              type: "*string"
+

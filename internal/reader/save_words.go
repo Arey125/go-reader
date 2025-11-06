@@ -14,18 +14,10 @@ func (s *Service) SaveWordsFromPage(page TextPage) error {
 		})
 	}
 
-	tx, err := s.wordModel.WithTx()
-	defer tx.Rollback()
-
+	err = s.wordModel.AddList(words)
 	if err != nil {
 		return err
 	}
 
-	err = tx.AddList(words)
-	if err != nil {
-		return err
-	}
-
-	tx.Commit()
 	return nil
 }

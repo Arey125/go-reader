@@ -4,37 +4,22 @@ import (
 	"context"
 	"database/sql"
 	"reader/internal/db/queries"
-	"time"
+	"reader/internal/reader"
 
 	sq "github.com/Masterminds/squirrel"
+
 )
-
-type Text struct {
-	Id        int
-	Title     string
-	Content   string
-	UserId    int
-	CreatedAt time.Time
-}
-
-type TextPage struct {
-	TextId    int
-	TextTitle string
-	Page      int
-	Total     int
-	Content   string
-}
 
 type TextModel struct {
 	db sq.BaseRunner
 	q  *queries.Queries
 }
 
-func NewTextModel(db *sql.DB, q *queries.Queries) TextModel {
+func New(db *sql.DB, q *queries.Queries) TextModel {
 	return TextModel{db, q}
 }
 
-func (m *TextModel) Add(text Text) error {
+func (m *TextModel) Add(text reader.Text) error {
 	return m.q.AddText(context.Background(), queries.AddTextParams{
 		Title: text.Title,
 		Content: text.Content,
@@ -43,15 +28,15 @@ func (m *TextModel) Add(text Text) error {
 	})
 }
 
-func (m *TextModel) AllWithoutContent() ([]Text, error) {
+func (m *TextModel) AllWithoutContent() ([]reader.Text, error) {
 	rows, err := m.q.AllTextsWithoutContent(context.Background())
 	if err != nil {
 		return nil, err
 	}
-	texts := make([]Text, len(rows))
+	texts := make([]reader.Text, len(rows))
 
 	for i, row := range rows {
-		texts[i] = Text{
+		texts[i] = reader.Text{
 			Id:        int(row.ID),
 			Title:     row.Title,
 			UserId:    int(row.UserID),
@@ -61,7 +46,7 @@ func (m *TextModel) AllWithoutContent() ([]Text, error) {
 	return texts, nil
 }
 
-func (m *TextModel) Get(id int) (*Text, error) {
+func (m *TextModel) Get(id int) (*reader.Text, error) {
 	row, err := m.q.GetText(context.Background(), int64(id))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -70,7 +55,7 @@ func (m *TextModel) Get(id int) (*Text, error) {
 		return nil, err
 	}
 
-	return &Text{
+	return &reader.Text{
 		Id:        int(row.ID),
 		Title:     row.Title,
 		Content:   row.Content,
@@ -79,7 +64,7 @@ func (m *TextModel) Get(id int) (*Text, error) {
 	}, nil
 }
 
-func (m *TextModel) GetPage(textId int, page int) (*TextPage, error) {
+func (m *TextModel) GetPage(textId int, page int) (*reader.TextPage, error) {
 	t, err := m.Get(textId)
 	if err != nil {
 		return nil, err
@@ -88,11 +73,11 @@ func (m *TextModel) GetPage(textId int, page int) (*TextPage, error) {
 		return nil, nil
 	}
 
-	pages := splitIntoPages(t.Content, 1000)
+	pages := reader.SplitIntoPages(t.Content, 1000)
 	if len(pages) < page {
 		return nil, nil
 	}
-	p := TextPage{
+	p := reader.TextPage{
 		TextId:    t.Id,
 		TextTitle: t.Title,
 		Content:   pages[page-1],

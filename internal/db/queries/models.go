@@ -11,8 +11,8 @@ import (
 
 type Permission struct {
 	ID    int64
-	Slug  sql.NullString
-	Email sql.NullString
+	Slug  *string
+	Email *string
 }
 
 type Session struct {
@@ -31,9 +31,9 @@ type Text struct {
 
 type User struct {
 	ID           int64
-	GoogleUserID sql.NullString
-	Name         sql.NullString
-	Email        sql.NullString
+	GoogleUserID *string
+	Name         *string
+	Email        *string
 }
 
 type UserPermission struct {
@@ -45,5 +45,5 @@ type Word struct {
 	ID          int64
 	Word        string
 	Pos         string
-	Definitions sql.NullString
+	Definitions *string
 }

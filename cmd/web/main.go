@@ -12,6 +12,10 @@ import (
 	"reader/internal/dictionary"
 	"reader/internal/nlp"
 	"reader/internal/reader"
+
+	textModel "reader/internal/reader/models/text"
+	wordModel "reader/internal/reader/models/word"
+
 	readerHandler "reader/internal/reader/handler"
 	"reader/internal/users"
 
@@ -46,8 +50,8 @@ func main() {
 
 	queries := queries.New(db)
 
-	textModel := reader.NewTextModel(db, queries)
-	wordModel := reader.NewWordModel(db)
+	textModel := textModel.New(db, queries)
+	wordModel := wordModel.New(db, queries)
 	readerService := reader.NewService(&textModel, &wordModel, &nlpClient, &dictionaryClient)
 	readerServiceHandler := readerHandler.New(&readerService)
 	readerServiceHandler.Register(mux)
