@@ -1,8 +1,8 @@
-package reader
+package text
 
 import "strings"
 
-func SplitIntoPages(text string, minCharacterCount int) []string {
+func splitIntoPages(text string, minCharacterCount int) []string {
 	paragraphs := strings.Split(text, "\r\n\r\n")
 
 	pages := []string{}

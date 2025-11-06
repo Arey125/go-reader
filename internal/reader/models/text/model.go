@@ -1,4 +1,4 @@
-package reader
+package text
 
 import (
 	"context"
@@ -73,7 +73,7 @@ func (m *TextModel) GetPage(textId int, page int) (*reader.TextPage, error) {
 		return nil, nil
 	}
 
-	pages := reader.SplitIntoPages(t.Content, 1000)
+	pages := splitIntoPages(t.Content, 1000)
 	if len(pages) < page {
 		return nil, nil
 	}

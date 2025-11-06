@@ -1,6 +1,9 @@
 package reader
 
-import "reader/internal/dictionary"
+import (
+	"database/sql"
+	"reader/internal/dictionary"
+)
 
 type TextModel interface {
 	Add(text Text) error
@@ -10,6 +13,7 @@ type TextModel interface {
 }
 
 type WordModel interface {
+	BeginTx() (*sql.Tx, WordModel, error)
 	AddList(words []Word) error
 	SaveDefinitions(word Word, definitions []dictionary.Definition) error
 	GetDefinitions(word Word) ([]dictionary.Definition, error)

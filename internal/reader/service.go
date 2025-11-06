@@ -1,7 +1,6 @@
 package reader
 
 import (
-	"errors"
 	"reader/internal/dictionary"
 	"reader/internal/nlp"
 )
@@ -28,8 +27,6 @@ func NewService(
 		wordFreq:         NewWordFreq(),
 	}
 }
-
-var ErrNotFound = errors.New("Not found")
 
 func (s *Service) GetAllTexts() ([]Text, error) {
 	return s.textModel.AllWithoutContent()
