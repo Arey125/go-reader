@@ -1,8 +1,9 @@
 package reader
 
 import (
+	"context"
 	"database/sql"
-	"reader/internal/db"
+	"reader/internal/db/queries"
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
@@ -26,71 +27,65 @@ type TextPage struct {
 
 type TextModel struct {
 	db sq.BaseRunner
+	q  *queries.Queries
 }
 
-func NewTextModel(db *sql.DB) TextModel {
-	return TextModel{db}
+func NewTextModel(db *sql.DB, q *queries.Queries) TextModel {
+	return TextModel{db, q}
 }
 
 func (m *TextModel) Add(text Text) error {
-	_, err := sq.Insert("texts").
-		Columns("title", "content", "user_id", "created_at").
-		Values(text.Title, text.Content, text.UserId, text.CreatedAt).
-		RunWith(m.db).
-		Exec()
-
-	return err
-}
-
-func (m *TextModel) All() ([]Text, error) {
-	rows, err := sq.Select("id", "title", "content", "user_id", "created_at").
-		From("texts").
-		RunWith(m.db).
-		Query()
-
-	if err != nil {
-		return nil, err
-	}
-
-	return db.Collect(rows, func(r *sql.Rows, t *Text) error {
-		return rows.Scan(&t.Id, &t.Title, &t.Content, &t.UserId, &t.CreatedAt)
+	return m.q.AddText(context.Background(), queries.AddTextParams{
+		Title: text.Title,
+		Content: text.Content,
+		UserID: int64(text.UserId),
+		CreatedAt: text.CreatedAt,
 	})
 }
 
+func (m *TextModel) AllWithoutContent() ([]Text, error) {
+	rows, err := m.q.AllTextsWithoutContent(context.Background())
+	if err != nil {
+		return nil, err
+	}
+	texts := make([]Text, len(rows))
+
+	for i, row := range rows {
+		texts[i] = Text{
+			Id:        int(row.ID),
+			Title:     row.Title,
+			UserId:    int(row.UserID),
+			CreatedAt: row.CreatedAt,
+		}
+	}
+	return texts, nil
+}
+
 func (m *TextModel) Get(id int) (*Text, error) {
-	t := Text{}
-
-	err := sq.Select("id", "title", "content", "user_id", "created_at").
-		From("texts").
-		Where(sq.Eq{"id": id}).
-		RunWith(m.db).
-		QueryRow().
-		Scan(&t.Id, &t.Title, &t.Content, &t.UserId, &t.CreatedAt)
-
+	row, err := m.q.GetText(context.Background(), int64(id))
 	if err == sql.ErrNoRows {
 		return nil, nil
 	}
 	if err != nil {
 		return nil, err
 	}
-	return &t, nil
+
+	return &Text{
+		Id:        int(row.ID),
+		Title:     row.Title,
+		Content:   row.Content,
+		UserId:    int(row.UserID),
+		CreatedAt: row.CreatedAt,
+	}, nil
 }
 
 func (m *TextModel) GetPage(textId int, page int) (*TextPage, error) {
-	t := Text{}
-
-	err := sq.Select("id", "title", "content", "user_id").
-		From("texts").
-		Where(sq.Eq{"id": textId}).
-		RunWith(m.db).
-		QueryRow().
-		Scan(&t.Id, &t.Title, &t.Content, &t.UserId)
-
-	if err == sql.ErrNoRows {
-		return nil, nil
-	}
+	t, err := m.Get(textId)
 	if err != nil {
 		return nil, err
+	}
+	if t == nil {
+		return nil, nil
 	}
 
 	pages := splitIntoPages(t.Content, 1000)

@@ -8,6 +8,7 @@ import (
 
 	"reader/internal/config"
 	database "reader/internal/db"
+	"reader/internal/db/queries"
 	"reader/internal/dictionary"
 	"reader/internal/nlp"
 	"reader/internal/reader"
@@ -43,7 +44,9 @@ func main() {
 	nlpClient := nlp.NewClient(cfg.NlpUrl)
 	dictionaryClient := dictionary.NewClient()
 
-	textModel := reader.NewTextModel(db)
+	queries := queries.New(db)
+
+	textModel := reader.NewTextModel(db, queries)
 	wordModel := reader.NewWordModel(db)
 	readerService := reader.NewService(&textModel, &wordModel, &nlpClient, &dictionaryClient)
 	readerServiceHandler := readerHandler.New(&readerService)

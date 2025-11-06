@@ -32,7 +32,7 @@ func NewService(
 var ErrNotFound = errors.New("Not found")
 
 func (s *Service) GetAllTexts() ([]Text, error) {
-	return s.textModel.All()
+	return s.textModel.AllWithoutContent()
 }
 
 func (s *Service) GetPageAndSegments(textId int, pageInd int) (*TextPage, []Segment, error) {

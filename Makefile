@@ -16,6 +16,8 @@ templ:
 run: all
 	@./bin/$(BIN)
 
+
+# DB ##################################################
 sqlite:
 	@sqlite3 $(DB)
 
@@ -27,6 +29,11 @@ migrate-down:
 
 backup:
 	sqlite3 $(DB) ".backup $(DB_BACKUP_DIR)/$(NOW).db"
+
+sqlc:
+	go tool sqlc generate
+
+######################################################
 
 nlp:
 	cd nlp && uv run fastapi run
