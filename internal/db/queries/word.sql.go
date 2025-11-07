@@ -9,19 +9,40 @@ import (
 	"context"
 )
 
-const addUserWord = `-- name: AddUserWord :exec
+const addOrIgnoreUserWord = `-- name: AddOrIgnoreUserWord :exec
 insert or ignore into user_words(user_id, word_id, status) select ? as user_id, id as word_id, ? as status from words where word = ? and pos = ?
 `
 
-type AddUserWordParams struct {
+type AddOrIgnoreUserWordParams struct {
 	UserID int64
 	Status string
 	Word   string
 	Pos    string
 }
 
-func (q *Queries) AddUserWord(ctx context.Context, arg AddUserWordParams) error {
-	_, err := q.db.ExecContext(ctx, addUserWord,
+func (q *Queries) AddOrIgnoreUserWord(ctx context.Context, arg AddOrIgnoreUserWordParams) error {
+	_, err := q.db.ExecContext(ctx, addOrIgnoreUserWord,
+		arg.UserID,
+		arg.Status,
+		arg.Word,
+		arg.Pos,
+	)
+	return err
+}
+
+const addOrReplaceUserWord = `-- name: AddOrReplaceUserWord :exec
+insert or replace into user_words(user_id, word_id, status) select ? as user_id, id as word_id, ? as status from words where word = ? and pos = ?
+`
+
+type AddOrReplaceUserWordParams struct {
+	UserID int64
+	Status string
+	Word   string
+	Pos    string
+}
+
+func (q *Queries) AddOrReplaceUserWord(ctx context.Context, arg AddOrReplaceUserWordParams) error {
+	_, err := q.db.ExecContext(ctx, addOrReplaceUserWord,
 		arg.UserID,
 		arg.Status,
 		arg.Word,

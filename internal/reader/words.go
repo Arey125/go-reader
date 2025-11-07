@@ -54,13 +54,17 @@ func (s *Service) SaveWordsFromSegmentsAsKnown(segments []Segment, userId int) e
 	}
 	defer tx.Rollback()
 
-	err = wordModelWithTx.AddUserWordList(words, userId)
+	err = wordModelWithTx.AddUserWordListAsKnown(words, userId)
 	if err != nil {
 		return err
 	}
 	tx.Commit()
 
 	return nil
+}
+
+func (s *Service) SaveWordAsLearning(word Word, userId int) error {
+	return s.wordModel.AddOrReplaceUserWordAsLearning(word, userId)
 }
 
 func getWordsFromSegments(segments []Segment) []Word {

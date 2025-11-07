@@ -7,13 +7,13 @@ import (
 	"reader/internal/reader"
 )
 
-func (m *WordModel) AddUserWordList(words []reader.Word, userId int) error {
+func (m *WordModel) AddUserWordListAsKnown(words []reader.Word, userId int) error {
 	for _, word := range words {
-		err := m.q.AddUserWord(context.Background(), queries.AddUserWordParams{
+		err := m.q.AddOrIgnoreUserWord(context.Background(), queries.AddOrIgnoreUserWordParams{
 			UserID: int64(userId),
 			Word:   word.Word,
 			Pos:    word.Pos,
-			Status: "known",
+			Status: string(reader.WordStatusKnown),
 		})
 
 		if err != nil {
@@ -21,6 +21,15 @@ func (m *WordModel) AddUserWordList(words []reader.Word, userId int) error {
 		}
 	}
 	return nil
+}
+
+func (m *WordModel) AddOrReplaceUserWordAsLearning(word reader.Word, userId int) error {
+	return m.q.AddOrReplaceUserWord(context.Background(), queries.AddOrReplaceUserWordParams{
+		UserID: int64(userId),
+		Word:   word.Word,
+		Pos:    word.Pos,
+		Status: string(reader.WordStatusLearning),
+	})
 }
 
 func (m *WordModel) GetUserWords(userId int) ([]reader.UserWord, error) {
@@ -37,7 +46,7 @@ func (m *WordModel) GetUserWords(userId int) ([]reader.UserWord, error) {
 
 		words[i] = reader.UserWord{
 			Word: reader.Word{
-				Id: int(dbWord.ID),
+				Id:   int(dbWord.ID),
 				Word: dbWord.Word,
 				Pos:  dbWord.Pos,
 			},

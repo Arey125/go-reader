@@ -40,6 +40,7 @@ func (h *Handler) homePage(w http.ResponseWriter, r *http.Request) {
 
 
 func (h *Handler) wordGet(w http.ResponseWriter, r *http.Request) {
+	user := users.GetUser(r)
 	segment := reader.Segment{}
 	segment.Text = r.FormValue("text")
 	segment.Info = &reader.WordInfo{
@@ -48,6 +49,13 @@ func (h *Handler) wordGet(w http.ResponseWriter, r *http.Request) {
 	}
 
 	definitions, freq, err := h.service.GetWordDefinitionsAndFreq(segment)
+	if err != nil {
+		server.ServerError(w, err)
+	}
+	err = h.service.SaveWordAsLearning(reader.Word{
+		Word:        segment.Info.Lemma,
+		Pos:         segment.Info.Pos,
+	}, user.User.Id)
 	if err != nil {
 		server.ServerError(w, err)
 	}

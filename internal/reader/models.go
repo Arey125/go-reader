@@ -17,6 +17,7 @@ type WordModel interface {
 	AddList(words []Word) error
 	SaveDefinitions(word Word, definitions []dictionary.Definition) error
 	GetDefinitions(word Word) ([]dictionary.Definition, error)
-	AddUserWordList(words []Word, userId int) error
+	AddUserWordListAsKnown(words []Word, userId int) error
 	GetUserWords(userId int) ([]UserWord, error)
+	AddOrReplaceUserWordAsLearning(word Word, userId int) error
 }
