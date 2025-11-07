@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
 	"reader/internal/reader"
 	"reader/internal/server"
@@ -25,7 +24,6 @@ func (h *Handler) readPage(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		return
 	}
-	fmt.Printf("%#v\n", query)
 
 	page, segments, err := h.getPageAndSegments(w, query.Text, query.Page)
 	if err != nil {
@@ -78,8 +76,6 @@ func getReadPageQuery(w http.ResponseWriter, r *http.Request) (readPageQuery, er
 		return readPageQuery{}, err
 	}
 
-	fmt.Printf("%#v\n", r.Form)
-	fmt.Printf("%#v\n", form)
 	pageInd := 1
 	if form.Page != nil {
 		pageInd = *form.Page

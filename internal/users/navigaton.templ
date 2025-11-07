@@ -12,13 +12,16 @@ templ Navigation(userWithPermissions *UserWithPermissions) {
 	}}
 	<div class="navbar-start">
 		<ul class="menu menu-horizontal px-1">
-			if permissions.HasPermission(PermissonUserPermissions) {
-				<li>
+			<li>
+				<a class="navbar-item" href="/words">
+					Words
+				</a>
+				if permissions.HasPermission(PermissonUserPermissions) {
 					<a class="navbar-item" href="/user-permissions">
 						Permissions
 					</a>
-				</li>
-			}
+				}
+			</li>
 		</ul>
 	</div>
 	<div class="navbar-end">

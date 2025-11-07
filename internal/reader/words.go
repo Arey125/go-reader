@@ -1,5 +1,32 @@
 package reader
 
+type UserWordWithFreq struct {
+	Word Word
+	Status string
+	Freq int
+}
+
+func (s *Service) GetUserWordsWithFreq(userId int) ([]UserWordWithFreq, error) {
+	words, err := s.wordModel.GetUserWords(userId)
+	if err != nil {
+		return nil, err
+	}
+	wordsWithFreq := make([]UserWordWithFreq, len(words))
+	for i, word := range words {
+		freq := 0
+		freqRecord := s.wordFreq.Get(word.Word.Word)
+		if freqRecord != nil {
+			freq = freqRecord.Freq
+		}
+		wordsWithFreq[i] = UserWordWithFreq{
+			Word: word.Word,
+			Status: word.Status,
+			Freq: freq,
+		}
+	}
+	return wordsWithFreq, nil
+}
+
 func (s *Service) SaveWordsFromSegments(segments []Segment) error {
 	words := getWordsFromSegments(segments)
 

@@ -45,11 +45,14 @@ func (q *Queries) AddWord(ctx context.Context, arg AddWordParams) error {
 }
 
 const getUserWords = `-- name: GetUserWords :many
-select words.id, words.word, words.pos, words.definitions from user_words left join words on words.id = user_words.word_id where user_id = ?
+select words.id, words.word, words.pos, user_words.status from user_words join words on words.id = user_words.word_id where user_id = ?
 `
 
 type GetUserWordsRow struct {
-	Word Word
+	ID     int64
+	Word   string
+	Pos    string
+	Status string
 }
 
 func (q *Queries) GetUserWords(ctx context.Context, userID int64) ([]GetUserWordsRow, error) {
@@ -62,10 +65,10 @@ func (q *Queries) GetUserWords(ctx context.Context, userID int64) ([]GetUserWord
 	for rows.Next() {
 		var i GetUserWordsRow
 		if err := rows.Scan(
-			&i.Word.ID,
-			&i.Word.Word,
-			&i.Word.Pos,
-			&i.Word.Definitions,
+			&i.ID,
+			&i.Word,
+			&i.Pos,
+			&i.Status,
 		); err != nil {
 			return nil, err
 		}

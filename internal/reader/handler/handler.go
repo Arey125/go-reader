@@ -26,6 +26,7 @@ func (h *Handler) Register(mux *http.ServeMux) {
 	mux.HandleFunc("GET /texts/{id}", h.readPage)
 
 	mux.HandleFunc("GET /word", h.wordGet)
+	mux.HandleFunc("GET /words", h.wordsPage)
 }
 
 func (h *Handler) homePage(w http.ResponseWriter, r *http.Request) {

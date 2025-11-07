@@ -26,3 +26,8 @@ type Word struct {
 	Pos         string
 	Definitions *string
 }
+
+type UserWord struct {
+	Word Word
+	Status string
+}

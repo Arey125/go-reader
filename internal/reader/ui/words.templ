@@ -1,0 +1,33 @@
+package ui
+
+import (
+    "strings"
+	"reader/internal/reader"
+	"reader/internal/ui"
+	"reader/internal/users"
+)
+
+templ WordsPage(user *users.UserWithPermissions, words []reader.UserWordWithFreq) {
+	@ui.Base(users.Navigation(user)) {
+		<div class="flex items-center gap-4 pb-4 h-16">
+			<h1 class="font-title text-xl">Words</h1>
+		</div>
+		<div id="text-list">
+			for _, word := range words {
+				<div class="card bg-base-100 mb-4">
+					<div class="card-body">
+						<div class="card-title">
+							if word.Status == "known" {
+                                <span aria-label="success" class="status status-success"></span>
+							} else {
+                                <span aria-label="success" class="status status-warning"></span>
+							}
+							<div>{ word.Word.Word }</div>
+						</div>
+                        { strings.ToLower(word.Word.Pos)}
+					</div>
+				</div>
+			}
+		</div>
+	}
+}
