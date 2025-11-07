@@ -3,10 +3,10 @@ package ui
 import (
 	"fmt"
 	"net/url"
+	"reader/internal/reader"
 	"reader/internal/ui"
 	"reader/internal/users"
 	"strconv"
-	"reader/internal/reader"
 )
 
 func getPageUrl(from reader.TextPage, to int) string {
@@ -22,7 +22,7 @@ func getPageUrl(from reader.TextPage, to int) string {
 
 templ ReadPage(user *users.UserWithPermissions, page reader.TextPage, segments []reader.Segment) {
 	@ui.Base(users.Navigation(user)) {
-		<div class="bg-base-100 whitespace-pre-line rounded-box p-6 mb-4 max-w-175 mx-auto mt-2 mb-10 flex flex-col items-center">
+		<div class="bg-base-100 whitespace-pre-line rounded-box p-6 mb-4 max-w-175 mx-auto mt-2 mb-10 flex flex-col items-center" id="content">
 			<div class="prose !max-w-none mb-6">
 				<h2>{ page.TextTitle }</h2>
 				<p>
@@ -50,17 +50,47 @@ templ ReadPage(user *users.UserWithPermissions, page reader.TextPage, segments [
 
 templ paging(page reader.TextPage) {
 	<div class="join">
-		<a href={ getPageUrl(page, 1) } class="join-item btn" disabled?={ page.Page == 1 }>
+		<a
+			hx-get={ getPageUrl(page, 1) }
+			hx-target="#content"
+			hx-swap="outerHTML"
+            hx-select="#content"
+			class="join-item btn"
+			disabled?={ page.Page == 1 }
+		>
 			@firstIcon()
 		</a>
-		<a href={ getPageUrl(page, page.Page-1) } rel="prev" class="join-item btn" disabled?={ page.Page == 1 }>
+		<a
+			hx-get={ getPageUrl(page, page.Page-1) }
+			hx-target="#content"
+			hx-swap="outerHTML"
+            hx-select="#content"
+			rel="prev"
+			class="join-item btn"
+			disabled?={ page.Page == 1 }
+		>
 			@prevIcon()
 		</a>
 		<span class="join-item btn">Page { page.Page }</span>
-		<a href={ getPageUrl(page, page.Page+1) } rel="next" class="join-item btn" disabled?={ page.Page == page.Total }>
+		<a
+			hx-get={ getPageUrl(page, page.Page+1) }
+			hx-target="#content"
+			hx-swap="outerHTML"
+            hx-select="#content"
+			rel="next"
+			class="join-item btn"
+			disabled?={ page.Page == page.Total }
+		>
 			@nextIcon()
 		</a>
-		<a href={ getPageUrl(page, page.Total) } class="join-item btn" disabled?={ page.Page == page.Total }>
+		<a
+			hx-get={ getPageUrl(page, page.Total) }
+			hx-target="#content"
+			hx-swap="outerHTML"
+            hx-select="#content"
+			class="join-item btn"
+			disabled?={ page.Page == page.Total }
+		>
 			@lastIcon()
 		</a>
 	</div>
