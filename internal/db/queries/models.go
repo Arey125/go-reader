@@ -41,6 +41,12 @@ type UserPermission struct {
 	PermissionID sql.NullInt64
 }
 
+type UserWord struct {
+	UserID int64
+	WordID int64
+	Status string
+}
+
 type Word struct {
 	ID          int64
 	Word        string

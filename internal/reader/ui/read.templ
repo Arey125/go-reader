@@ -16,6 +16,7 @@ func getPageUrl(from reader.TextPage, to int) string {
 	}
 	queryParams := url.Values{}
 	queryParams.Set("page", strconv.Itoa(to))
+	queryParams.Set("from", strconv.Itoa(from.Page))
 	baseUrl.RawQuery = queryParams.Encode()
 	return baseUrl.String()
 }

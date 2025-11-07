@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"reader/internal/server"
 	"reader/internal/users"
-	"strconv"
 
 	"reader/internal/reader"
 	"reader/internal/reader/ui"
@@ -38,38 +37,6 @@ func (h *Handler) homePage(w http.ResponseWriter, r *http.Request) {
 	ui.HomePage(user, texts).Render(r.Context(), w)
 }
 
-func (h *Handler) readPage(w http.ResponseWriter, r *http.Request) {
-	user := users.GetUser(r)
-
-	textId, err := strconv.Atoi(r.PathValue("id"))
-	if err != nil {
-		server.HttpError(w, http.StatusBadRequest)
-		return
-	}
-
-	pageIndStr := r.FormValue("page")
-	if pageIndStr == "" {
-		pageIndStr = "1"
-	}
-	pageInd, err := strconv.Atoi(pageIndStr)
-	if err != nil {
-		server.HttpError(w, http.StatusBadRequest)
-		return
-	}
-
-	pagePtr, segments, err := h.service.GetPageAndSegments(textId, pageInd)
-	if err != nil {
-		server.ServerError(w, err)
-		return
-	}
-
-	if pagePtr == nil {
-		server.HttpError(w, http.StatusNotFound)
-	}
-
-	page := *pagePtr
-	ui.ReadPage(user, page, segments).Render(r.Context(), w)
-}
 
 func (h *Handler) wordGet(w http.ResponseWriter, r *http.Request) {
 	segment := reader.Segment{}

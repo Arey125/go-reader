@@ -9,6 +9,27 @@ import (
 	"context"
 )
 
+const addUserWord = `-- name: AddUserWord :exec
+insert or ignore into user_words(user_id, word_id, status) select ? as user_id, id as word_id, ? as status from words where word = ? and pos = ?
+`
+
+type AddUserWordParams struct {
+	UserID int64
+	Status string
+	Word   string
+	Pos    string
+}
+
+func (q *Queries) AddUserWord(ctx context.Context, arg AddUserWordParams) error {
+	_, err := q.db.ExecContext(ctx, addUserWord,
+		arg.UserID,
+		arg.Status,
+		arg.Word,
+		arg.Pos,
+	)
+	return err
+}
+
 const addWord = `-- name: AddWord :exec
 insert or ignore into words (word, pos) values (?, ?)
 `
@@ -21,6 +42,42 @@ type AddWordParams struct {
 func (q *Queries) AddWord(ctx context.Context, arg AddWordParams) error {
 	_, err := q.db.ExecContext(ctx, addWord, arg.Word, arg.Pos)
 	return err
+}
+
+const getUserWords = `-- name: GetUserWords :many
+select words.id, words.word, words.pos, words.definitions from user_words left join words on words.id = user_words.word_id where user_id = ?
+`
+
+type GetUserWordsRow struct {
+	Word Word
+}
+
+func (q *Queries) GetUserWords(ctx context.Context, userID int64) ([]GetUserWordsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getUserWords, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetUserWordsRow
+	for rows.Next() {
+		var i GetUserWordsRow
+		if err := rows.Scan(
+			&i.Word.ID,
+			&i.Word.Word,
+			&i.Word.Pos,
+			&i.Word.Definitions,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getWordDefinition = `-- name: GetWordDefinition :one
