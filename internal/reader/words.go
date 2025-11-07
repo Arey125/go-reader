@@ -2,7 +2,7 @@ package reader
 
 type UserWordWithFreq struct {
 	Word Word
-	Status string
+	Status WordStatus
 	Freq int
 }
 

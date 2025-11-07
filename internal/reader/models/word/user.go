@@ -30,13 +30,18 @@ func (m *WordModel) GetUserWords(userId int) ([]reader.UserWord, error) {
 	}
 	words := make([]reader.UserWord, len(dbWords))
 	for i, dbWord := range dbWords {
+		status, err := reader.ToWordStatus(dbWord.Status)
+		if err != nil {
+			return nil, err
+		}
+
 		words[i] = reader.UserWord{
 			Word: reader.Word{
 				Id: int(dbWord.ID),
 				Word: dbWord.Word,
 				Pos:  dbWord.Pos,
 			},
-			Status: dbWord.Status,
+			Status: status,
 		}
 	}
 	return words, nil

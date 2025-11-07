@@ -1,6 +1,7 @@
 package reader
 
 import (
+	"fmt"
 	"time"
 )
 
@@ -27,7 +28,28 @@ type Word struct {
 	Definitions *string
 }
 
+type WordStatus string
+
+const (
+	WordStatusKnown    WordStatus = "known"
+	WordStatusLearning WordStatus = "learning"
+	WordStatusLearned  WordStatus = "learned"
+)
+
 type UserWord struct {
-	Word Word
-	Status string
+	Word   Word
+	Status WordStatus
+}
+
+func ToWordStatus(status string) (WordStatus, error) {
+	switch status {
+	case string(WordStatusKnown):
+		return WordStatusKnown, nil
+	case string(WordStatusLearning):
+		return WordStatusLearning, nil
+	case string(WordStatusLearned):
+		return WordStatusLearned, nil
+	default:
+		return "", fmt.Errorf("unexpected reader.WordStatus: %#v", status)
+	}
 }
