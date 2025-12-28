@@ -1,7 +1,9 @@
 package server
 
 import (
+	"fmt"
 	"net/http"
+	"runtime/debug"
 )
 
 func ServerError(w http.ResponseWriter, err error) {
@@ -14,5 +16,6 @@ func Forbiden(w http.ResponseWriter) {
 }
 
 func HttpError(w http.ResponseWriter, statusCode int) {
+	fmt.Printf("http error %s, stack trace:\n%s", http.StatusText(statusCode), debug.Stack())
 	http.Error(w, http.StatusText(statusCode), statusCode)
 }
